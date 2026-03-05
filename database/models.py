@@ -47,3 +47,4 @@ class Sale(Base):
     
     def __repr__(self):
         return f"<Sale(id={self.id}, sale_owner='{self.sale_owner}', total_sum={self.total_sum}, payment='{self.payment}')>"
+    

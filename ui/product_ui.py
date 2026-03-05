@@ -68,140 +68,80 @@ class ProductsUI(QWidget):
         self.status_combo.setCurrentIndex(0)
         self.generate_barcode()
 
-    def on_save(self):
-        name = self.name_input.text().strip()
-        barcode = self.barcode_input.text().strip()
-        price = self.price_input.text().strip()
-        quantity = self.quantity_input.value()
-        status = self.status_combo.currentText()
-
-        if not name or not barcode or not price:
-            QMessageBox.warning(self, "Xato", "Barcha maydonlarni to‘ldiring!")
-            return
-
-        try:
-            price_value = float(price)
-        except:
-            QMessageBox.warning(self, "Xato", "Narx raqam bo‘lishi kerak!")
-            return
-
-
-        QMessageBox.information(self, "OK", "Mahsulot saqlandi!")
-        self.clear_form()
-
     def init_ui(self):
-        layout = QVBoxLayout()
-        layout.setContentsMargins(25, 25, 25, 25)
-        layout.setSpacing(12)
+        """ASOSIY UI - TO'LIQLIKDA QAYTA YOZILGAN"""
+        main_layout = QVBoxLayout()
+        main_layout.setContentsMargins(15, 15, 15, 15)
+        main_layout.setSpacing(10)
         
-        # Nomi
-        name_label = QLabel("Mahsulot nomi:")
-        name_label.setStyleSheet("font-weight: bold; font-size: 12px;")
-        layout.addWidget(name_label)
+        # ========== YUQORI PANEL: QIDIRISH VA TUGMALAR ==========
+        top_layout = QHBoxLayout()
         
-        self.name_input = QLineEdit()
-        self.name_input.setPlaceholderText("Mahsulot nomini kiriting")
-        self.name_input.setStyleSheet(self.get_input_stylesheet())
-        self.name_input.setMinimumHeight(35)
-        layout.addWidget(self.name_input)
-    
-        # Barcode - AUTO GENERATE
-        barcode_label = QLabel("Barcode:")
-        barcode_label.setStyleSheet("font-weight: bold; font-size: 12px;")
-        layout.addWidget(barcode_label)
+        # Qidirish
+        search_label = QLabel("Qidirish:")
+        search_label.setStyleSheet("font-weight: bold; font-size: 12px;")
+        top_layout.addWidget(search_label)
         
-        barcode_layout = QHBoxLayout()
+        self.search_input = QLineEdit()
+        self.search_input.setPlaceholderText("Mahsulot nomini izlang...")
+        self.search_input.setStyleSheet(self.get_input_stylesheet())
+        self.search_input.setMaximumWidth(250)
+        self.search_input.textChanged.connect(self.on_search)
+        top_layout.addWidget(self.search_input)
         
-        self.barcode_input = QLineEdit()
-        self.barcode_input.setStyleSheet(self.get_input_stylesheet())
-        self.barcode_input.setMinimumHeight(35)
-        barcode_layout.addWidget(self.barcode_input)
-    
-        # Auto-generate tugmasi
-        generate_btn = QPushButton("🔄 Auto")
-        generate_btn.setMaximumWidth(80)
-        generate_btn.setStyleSheet(self.get_generate_button_stylesheet())
-        generate_btn.clicked.connect(self.generate_barcode)
-        barcode_layout.addWidget(generate_btn)
+        top_layout.addStretch()
         
-        layout.addLayout(barcode_layout)
-        
-        # Narx
-        price_label = QLabel("Narx:")
-        price_label.setStyleSheet("font-weight: bold; font-size: 12px;")
-        layout.addWidget(price_label)
-        
-        self.price_input = QLineEdit()
-        self.price_input.setPlaceholderText("Mahsulot narxini kiriting")
-        self.price_input.setStyleSheet(self.get_input_stylesheet())
-        self.price_input.setMinimumHeight(35)
-        layout.addWidget(self.price_input)
-    
-        # Miqdor
-        quantity_label = QLabel("Miqdor:")
-        quantity_label.setStyleSheet("font-weight: bold; font-size: 12px;")
-        layout.addWidget(quantity_label)
-        
-        self.quantity_input = QSpinBox()
-        self.quantity_input.setMinimum(0)
-        self.quantity_input.setMaximum(1000000)
-        self.quantity_input.setStyleSheet(self.get_spinbox_stylesheet())
-        self.quantity_input.setMinimumHeight(35)
-        layout.addWidget(self.quantity_input)
-    
-        # Status
-        status_label = QLabel("Status:")
-        status_label.setStyleSheet("font-weight: bold; font-size: 12px;")
-        layout.addWidget(status_label)
-        
-        self.status_combo = QComboBox()
-        self.status_combo.addItems(["active", "inactive"])
-        self.status_combo.setStyleSheet(self.get_combo_stylesheet())
-        self.status_combo.setMinimumHeight(35)
-        layout.addWidget(self.status_combo)
-        
-        layout.addStretch()
-    
         # Tugmalar
-        button_layout = QHBoxLayout()
+        add_btn = QPushButton("➕ Qo'shish")
+        add_btn.setStyleSheet(self.get_add_button_stylesheet())
+        add_btn.setMaximumWidth(120)
+        add_btn.clicked.connect(self.on_add_product)
+        top_layout.addWidget(add_btn)
         
-        save_btn = QPushButton("✅ Saqlash")
-        save_btn.setStyleSheet(self.get_save_button_stylesheet())
-        save_btn.setMinimumHeight(40)
-        save_btn.clicked.connect(self.on_save)
-        button_layout.addWidget(save_btn)
+        update_btn = QPushButton("✏️ Yangilash")
+        update_btn.setStyleSheet(self.get_update_button_stylesheet())
+        update_btn.setMaximumWidth(120)
+        update_btn.clicked.connect(self.on_update_product)
+        top_layout.addWidget(update_btn)
         
-        cancel_btn = QPushButton("❌ Bekor qilish")
-        cancel_btn.setStyleSheet(self.get_cancel_button_stylesheet())
-        cancel_btn.setMinimumHeight(40)
-        cancel_btn.clicked.connect(self.reject)
-        button_layout.addWidget(cancel_btn)
+        delete_btn = QPushButton("🗑️ O'chirish")
+        delete_btn.setStyleSheet(self.get_delete_button_stylesheet())
+        delete_btn.setMaximumWidth(120)
+        delete_btn.clicked.connect(self.on_delete_selected)
+        top_layout.addWidget(delete_btn)
         
-        layout.addLayout(button_layout)
-        self.setLayout(layout)
+        self.refresh_btn = QPushButton("🔄 Yangilash")
+        self.refresh_btn.setStyleSheet(self.get_refresh_button_stylesheet())
+        self.refresh_btn.setMaximumWidth(120)
+        self.refresh_btn.clicked.connect(self.on_refresh_clicked)
+        top_layout.addWidget(self.refresh_btn)
         
-        # DIALOGNI OCHGANDA AUTO BARCODE GENERATE QILISH
-        self.generate_barcode()
-
-    def generate_barcode(self):
-        """Barcode auto-generate qilish"""
-        barcode = ProductRequest.generate_barcode()
-        self.barcode_input.setText(barcode)
-
-    def get_generate_button_stylesheet(self):
-        return """
-            QPushButton {
-                background-color: #2196F3;
-                color: white;
-                padding: 8px;
-                border: none;
-                border-radius: 4px;
-                font-weight: bold;
-                font-size: 12px;
-            }
-            QPushButton:hover { background-color: #1976D2; }
-            QPushButton:pressed { background-color: #1565C0; }
-        """
+        back_btn = QPushButton("⬅ Orqaga")
+        back_btn.setStyleSheet(self.get_back_button_stylesheet())
+        back_btn.setMaximumWidth(100)
+        back_btn.clicked.connect(self.on_back_clicked)
+        top_layout.addWidget(back_btn)
+        
+        main_layout.addLayout(top_layout)
+        
+        # ========== JADVALNI YARATISH ==========
+        self.table = QTableWidget()
+        self.table.setColumnCount(8)
+        self.table.setHorizontalHeaderLabels([
+            "ID", "Nomi", "Barcode", "Narx", "Miqdor", "Yaratildi", "Status", "✓"
+        ])
+        self.table.setColumnWidth(0, 50)
+        self.table.setColumnWidth(1, 150)
+        self.table.setColumnWidth(2, 120)
+        self.table.setColumnWidth(3, 80)
+        self.table.setColumnWidth(4, 80)
+        self.table.setColumnWidth(5, 150)
+        self.table.setColumnWidth(6, 80)
+        self.table.setColumnWidth(7, 40)
+        self.table.setStyleSheet(self.get_table_stylesheet())
+        main_layout.addWidget(self.table)
+        
+        self.setLayout(main_layout)
     
     def load_products(self, search_query=""):
         """Mahsulotlarni yuklash"""
@@ -220,44 +160,44 @@ class ProductsUI(QWidget):
             # ID
             id_item = QTableWidgetItem(str(product.id))
             id_item.setFlags(id_item.flags() & ~Qt.ItemIsEditable)
-            id_item.setFont(QFont("Segoe UI", 14))
+            id_item.setFont(QFont("Segoe UI", 11))
             self.table.setItem(row_position, 0, id_item)
             
             # Nomi
             name_item = QTableWidgetItem(product.name)
             name_item.setFlags(name_item.flags() & ~Qt.ItemIsEditable)
-            name_item.setFont(QFont("Segoe UI", 14))
+            name_item.setFont(QFont("Segoe UI", 11))
             self.table.setItem(row_position, 1, name_item)
             
             # Barcode
             barcode_item = QTableWidgetItem(str(product.barcode))
             barcode_item.setFlags(barcode_item.flags() & ~Qt.ItemIsEditable)
-            barcode_item.setFont(QFont("Segoe UI", 14))
+            barcode_item.setFont(QFont("Segoe UI", 11))
             self.table.setItem(row_position, 2, barcode_item)
             
             # Narx
-            price_item = QTableWidgetItem(str(product.price))
+            price_item = QTableWidgetItem(f"{product.price:,.0f} {product.currency if hasattr(product, 'currency') else 'UZS'}")
             price_item.setFlags(price_item.flags() & ~Qt.ItemIsEditable)
-            price_item.setFont(QFont("Segoe UI", 14))
+            price_item.setFont(QFont("Segoe UI", 11))
             self.table.setItem(row_position, 3, price_item)
             
             # Miqdor
             quantity_item = QTableWidgetItem(str(product.quantity))
             quantity_item.setFlags(quantity_item.flags() & ~Qt.ItemIsEditable)
-            quantity_item.setFont(QFont("Segoe UI", 14))
+            quantity_item.setFont(QFont("Segoe UI", 11))
             self.table.setItem(row_position, 4, quantity_item)
             
             # Yaratildi
             created_at = product.created_at.strftime("%d.%m.%Y %H:%M:%S")
             created_item = QTableWidgetItem(created_at)
             created_item.setFlags(created_item.flags() & ~Qt.ItemIsEditable)
-            created_item.setFont(QFont("Segoe UI", 14))
+            created_item.setFont(QFont("Segoe UI", 11))
             self.table.setItem(row_position, 5, created_item)
             
             # Status
             status_item = QTableWidgetItem(product.status)
             status_item.setFlags(status_item.flags() & ~Qt.ItemIsEditable)
-            status_item.setFont(QFont("Segoe UI", 14))
+            status_item.setFont(QFont("Segoe UI", 11))
             self.table.setItem(row_position, 6, status_item)
             
             # Checkbox (Tanlash)
@@ -447,7 +387,7 @@ class AddProductDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Mahsulot qo'shish")
-        self.setGeometry(100, 100, 500, 400)
+        self.setGeometry(100, 100, 500, 450)
         self.init_ui()
     
     def init_ui(self):
@@ -466,19 +406,30 @@ class AddProductDialog(QDialog):
         self.name_input.setMinimumHeight(35)
         layout.addWidget(self.name_input)
         
-        # Barcode
+        # Barcode - AUTO GENERATE
         barcode_label = QLabel("Barcode:")
         barcode_label.setStyleSheet("font-weight: bold; font-size: 12px;")
         layout.addWidget(barcode_label)
+        
+        barcode_layout = QHBoxLayout()
         
         self.barcode_input = QLineEdit()
         self.barcode_input.setPlaceholderText("Barcode ni kiriting")
         self.barcode_input.setStyleSheet(self.get_input_stylesheet())
         self.barcode_input.setMinimumHeight(35)
-        layout.addWidget(self.barcode_input)
+        self.barcode_input.setReadOnly(False)
+        barcode_layout.addWidget(self.barcode_input)
+        
+        generate_btn = QPushButton("🔄 Auto")
+        generate_btn.setMaximumWidth(80)
+        generate_btn.setStyleSheet(self.get_generate_button_stylesheet())
+        generate_btn.clicked.connect(self.generate_barcode)
+        barcode_layout.addWidget(generate_btn)
+        
+        layout.addLayout(barcode_layout)
         
         # Narx
-        price_label = QLabel("Narx:")
+        price_label = QLabel("Narx (UZS):")
         price_label.setStyleSheet("font-weight: bold; font-size: 12px;")
         layout.addWidget(price_label)
         
@@ -489,7 +440,7 @@ class AddProductDialog(QDialog):
         layout.addWidget(self.price_input)
         
         # Miqdor
-        quantity_label = QLabel("Miqdor:")
+        quantity_label = QLabel("Miqdor (Dona):")
         quantity_label.setStyleSheet("font-weight: bold; font-size: 12px;")
         layout.addWidget(quantity_label)
         
@@ -530,6 +481,14 @@ class AddProductDialog(QDialog):
         
         layout.addLayout(button_layout)
         self.setLayout(layout)
+        
+        # AUTO BARCODE GENERATE
+        self.generate_barcode()
+    
+    def generate_barcode(self):
+        """Barcode auto-generate qilish"""
+        barcode = ProductRequest.generate_barcode()
+        self.barcode_input.setText(barcode)
     
     def on_save(self):
         name = self.name_input.text().strip()
@@ -538,6 +497,7 @@ class AddProductDialog(QDialog):
         quantity = self.quantity_input.value()
         status = self.status_combo.currentText()
         
+        # Validation
         if not name:
             QMessageBox.warning(self, "Xato", "Mahsulot nomi kiritilmadi!")
             return
@@ -556,6 +516,7 @@ class AddProductDialog(QDialog):
             QMessageBox.warning(self, "Xato", "Narx raqam bo'lishi kerak!")
             return
         
+        # Database ga saqlash
         result = ProductRequest.create_product(name, barcode, price, quantity, status)
         
         if result["success"]:
@@ -563,6 +524,21 @@ class AddProductDialog(QDialog):
             self.accept()
         else:
             QMessageBox.warning(self, "Xato", result["message"])
+    
+    def get_generate_button_stylesheet(self):
+        return """
+            QPushButton {
+                background-color: #2196F3;
+                color: white;
+                padding: 8px;
+                border: none;
+                border-radius: 4px;
+                font-weight: bold;
+                font-size: 12px;
+            }
+            QPushButton:hover { background-color: #1976D2; }
+            QPushButton:pressed { background-color: #1565C0; }
+        """
     
     def get_input_stylesheet(self):
         return """
@@ -627,7 +603,7 @@ class UpdateProductDialog(QDialog):
         super().__init__(parent)
         self.product_id = product_id
         self.setWindowTitle("Mahsulot yangilash")
-        self.setGeometry(100, 100, 500, 400)
+        self.setGeometry(100, 100, 500, 450)
         self.init_ui()
         self.load_product_data()
     
@@ -657,7 +633,7 @@ class UpdateProductDialog(QDialog):
         layout.addWidget(self.barcode_input)
         
         # Narx
-        price_label = QLabel("Narx:")
+        price_label = QLabel("Narx (UZS):")
         price_label.setStyleSheet("font-weight: bold; font-size: 12px;")
         layout.addWidget(price_label)
         
@@ -667,7 +643,7 @@ class UpdateProductDialog(QDialog):
         layout.addWidget(self.price_input)
         
         # Miqdor
-        quantity_label = QLabel("Miqdor:")
+        quantity_label = QLabel("Miqdor (Dona):")
         quantity_label.setStyleSheet("font-weight: bold; font-size: 12px;")
         layout.addWidget(quantity_label)
         
@@ -728,6 +704,7 @@ class UpdateProductDialog(QDialog):
         quantity = self.quantity_input.value()
         status = self.status_combo.currentText()
         
+        # Validation
         if not name:
             QMessageBox.warning(self, "Xato", "Mahsulot nomi kiritilmadi!")
             return
@@ -746,6 +723,7 @@ class UpdateProductDialog(QDialog):
             QMessageBox.warning(self, "Xato", "Narx raqam bo'lishi kerak!")
             return
         
+        # Database ga yangilash
         result = ProductRequest.update_product(self.product_id, name, barcode, price, quantity, status)
         
         if result["success"]:

@@ -106,9 +106,19 @@ class MainWindow(QMainWindow):
         central_widget.setLayout(main_layout)
     
     def on_sales_clicked(self):
-        """Savdo tugmasi bosilganda"""
-        print("Savdo oynasi ochildi")
-        # Keyingi qismda sales_ui ni qo'shamiz
+        """Savdo tugmasi bosilganda alohida window ochiladi"""
+
+        from .sale_ui import SalesWindow
+
+        # Agar ochiq bo'lsa yana ochilmasin
+        if hasattr(self, "sales_window") and self.sales_window.isVisible():
+            self.sales_window.activateWindow()
+            return
+
+        self.sales_window = SalesWindow()
+        self.sales_window.show()
+
+        
     
     def on_history_clicked(self):
         """Savdo tarixi tugmasi bosilganda"""
